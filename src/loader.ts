@@ -101,6 +101,8 @@ function createElement(
     }
 
     const styleNodes = appElement.querySelectorAll('style') || [];
+    // 给子应用所有style标签加前缀，防止父子应用样式互有影响
+    // 对于link形式的子应用样式就管不了了
     forEach(styleNodes, (stylesheetElement: HTMLStyleElement) => {
       css.process(appElement!, stylesheetElement, appInstanceId);
     });
@@ -340,6 +342,7 @@ export async function loadApp<T extends ObjectType>(
 
   // get the lifecycle hooks from module exports
   const scriptExports: any = await execScripts(global, sandbox && !useLooseSandbox);
+  // todo
   const { bootstrap, mount, unmount, update } = getLifecyclesFromExports(
     scriptExports,
     appName,
