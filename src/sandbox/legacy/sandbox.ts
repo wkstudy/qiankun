@@ -11,6 +11,7 @@ function isPropConfigurable(target: WindowProxy, prop: PropertyKey) {
   return descriptor ? descriptor.configurable : true;
 }
 
+//  会直接修改window，并且添加几个全局map变量，用于在加载和卸载子应用时正确的加载/卸载修改过的window属性
 /**
  * 基于 Proxy 实现的沙箱
  * TODO: 为了兼容性 singular 模式下依旧使用该沙箱，等新沙箱稳定之后再切换
@@ -66,7 +67,9 @@ export default class LegacySandbox implements SandBox {
 
     // renderSandboxSnapshot = snapshot(currentUpdatedPropsValueMapForSnapshot);
     // restore global props to initial snapshot
+    // modifiedPropsOriginalValueMapInSandbox里记录的初始值，给还原
     this.modifiedPropsOriginalValueMapInSandbox.forEach((v, p) => this.setWindowProp(p, v));
+    // addedPropsMapInSandbox加的属性都删除
     this.addedPropsMapInSandbox.forEach((_, p) => this.setWindowProp(p, undefined, true));
 
     this.sandboxRunning = false;

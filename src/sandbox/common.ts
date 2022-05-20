@@ -6,7 +6,7 @@
 import { isBoundedFunction, isCallable, isConstructable } from '../utils';
 
 type AppInstance = { name: string; window: WindowProxy };
-let currentRunningApp: AppInstance | null = null;
+let currentRunningApp: AppInstance | null = null; //当前使用的子应用
 /**
  * get the app that running tasks at current tick
  */
@@ -20,6 +20,7 @@ export function setCurrentRunningApp(appInstance: { name: string; window: Window
 }
 
 const functionBoundedValueMap = new WeakMap<CallableFunction, CallableFunction>();
+// value是函数的话需要特殊处理，其他直接返回value,并将特殊处理的函数存到functionBoundedValueMap，以供后续使用
 export function getTargetValue(target: any, value: any): any {
   /*
     仅绑定 isCallable && !isBoundedFunction && !isConstructable 的函数对象，如 window.console、window.atob 这类，不然微应用中调用时会抛出 Illegal invocation 异常
@@ -32,7 +33,7 @@ export function getTargetValue(target: any, value: any): any {
       return cachedBoundFunction;
     }
 
-    const boundValue = Function.prototype.bind.call(value, target);
+    const boundValue = Function.prototype.bind.call(value, target); // = value.bind(target)
 
     // some callable function has custom fields, we need to copy the enumerable props to boundValue. such as moment function.
     // use for..in rather than Object.keys.forEach for performance reason

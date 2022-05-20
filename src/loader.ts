@@ -41,7 +41,13 @@ function assertElementExist(element: Element | null | undefined, msg?: string) {
     throw new QiankunError('element not existed!');
   }
 }
-
+/**
+ * 挨个执行hook里的函数
+ * @param hooks 
+ * @param app 
+ * @param global 
+ * @returns 
+ */
 function execHooksChain<T extends ObjectType>(
   hooks: Array<LifeCycleFn<T>>,
   app: LoadableApp<T>,
@@ -75,6 +81,7 @@ function createElement(
   // appContent always wrapped with a singular div
   const appElement = containerElement.firstChild as HTMLElement;
   if (strictStyleIsolation) {
+    // 开启shadow dom
     if (!supportShadowDOM) {
       console.warn(
         '[qiankun]: As current browser not support shadow dom, your strictStyleIsolation configuration will be ignored!',
@@ -301,6 +308,7 @@ export async function loadApp<T extends ObjectType>(
   // 确保每次应用加载前容器 dom 结构已经设置完毕
   render({ element: initialAppWrapperElement, loading: true, container: initialContainer }, 'loading');
 
+  // 返回appInstanceId这个app的html块
   const initialAppWrapperGetter = getAppWrapperGetter(
     appInstanceId,
     !!legacyRender,
@@ -338,11 +346,12 @@ export async function loadApp<T extends ObjectType>(
     beforeLoad = [],
   } = mergeWith({}, getAddOns(global, assetPublicPath), lifeCycles, (v1, v2) => concat(v1 ?? [], v2 ?? []));
 
+  // 执行beforeLoad里的所有函数
   await execHooksChain(toArray(beforeLoad), app, global);
 
   // get the lifecycle hooks from module exports
   const scriptExports: any = await execScripts(global, sandbox && !useLooseSandbox);
-  // todo
+  // 子应用的入口文件里定义的生命周期
   const { bootstrap, mount, unmount, update } = getLifecyclesFromExports(
     scriptExports,
     appName,

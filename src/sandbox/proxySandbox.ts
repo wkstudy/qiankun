@@ -77,10 +77,11 @@ const useNativeWindowForBindingsProps = new Map<PropertyKey, boolean>([
   ['fetch', true],
   ['mockDomAPIInBlackList', process.env.NODE_ENV === 'test'],
 ]);
-
+// 把globalContext的属性遍历给到fakeWindow
 function createFakeWindow(globalContext: Window) {
   // map always has the fastest performance in has check scenario
   // see https://jsperf.com/array-indexof-vs-set-has/23
+  // 记录所有有get属性的key
   const propertiesWithGetter = new Map<PropertyKey, boolean>();
   const fakeWindow = {} as FakeWindow;
 
@@ -185,6 +186,7 @@ export default class ProxySandbox implements SandBox {
       ]);
     }
 
+    // 清除变量白名单里的天还在全局的变量
     if (--activeSandboxCount === 0) {
       variableWhiteList.forEach((p) => {
         if (this.proxy.hasOwnProperty(p)) {
@@ -208,6 +210,7 @@ export default class ProxySandbox implements SandBox {
     const descriptorTargetMap = new Map<PropertyKey, SymbolTarget>();
     const hasOwnProperty = (key: PropertyKey) => fakeWindow.hasOwnProperty(key) || globalContext.hasOwnProperty(key);
 
+    // proxy fakeWindow， 后续子应用访问的都是fakeWindow，
     const proxy = new Proxy(fakeWindow, {
       set: (target: FakeWindow, p: PropertyKey, value: any): boolean => {
         if (this.sandboxRunning) {

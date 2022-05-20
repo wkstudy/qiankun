@@ -37,6 +37,7 @@ export function nextTask(cb: () => void): void {
 }
 
 const fnRegexCheckCacheMap = new WeakMap<any | FunctionConstructor, boolean>();
+// 构造函数
 export function isConstructable(fn: () => any | FunctionConstructor) {
   // prototype methods might be changed while code running, so we need check it every time
   const hasPrototypeMethods =
@@ -74,6 +75,7 @@ export function isConstructable(fn: () => any | FunctionConstructor) {
  * We need to discriminate safari for better performance
  */
 const naughtySafari = typeof document.all === 'function' && typeof document.all === 'undefined';
+// 保存访问过的fn
 const callableFnCacheMap = new WeakMap<CallableFunction, boolean>();
 export const isCallable = (fn: any) => {
   if (callableFnCacheMap.has(fn)) {
@@ -88,6 +90,7 @@ export const isCallable = (fn: any) => {
 };
 
 const boundedMap = new WeakMap<CallableFunction, boolean>();
+// 保存bound开头的且没有prototype的fn
 export function isBoundedFunction(fn: CallableFunction) {
   if (boundedMap.has(fn)) {
     return boundedMap.get(fn);

@@ -14,7 +14,7 @@ function iter(obj: typeof window, callbackFn: (prop: any) => void) {
     }
   }
 }
-
+// 直接修改windows,对比active/inactive时的两个window对象，得到变化的部分
 /**
  * 基于 diff 方式实现的沙箱，用于不支持 Proxy 的低版本浏览器
  */
